@@ -1,0 +1,24 @@
+lpc json 测试用例
+
+input:
+[3456,123.456,-123,+12.897,12e2,13.56e-3,14E3,true,false,null,"test sample\nnew line\toutput",["thank you","http://www.json.org","good"]]
+output:
+({ /* sizeof() == 12 */
+  3456,
+  123.456,
+  -123,
+  12.897,
+  144,
+  0.000401071,
+  2744,
+  1,
+  0,
+  0,
+  "test sample
+new line        output",
+  ({ /* sizeof() == 3 */
+    "thank you",
+    "http://www.json.org",
+    "good"
+  })
+})
