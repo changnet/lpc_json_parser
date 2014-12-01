@@ -98,13 +98,57 @@ private float parse_exponent( string value )
 /* 解析json中的\u特殊字符 */
 private string parse_hex_string( string value )
 {
-    int ch = 0;
+    int hex_value = 0;
     int ch_value = 0;
     int length = strlen( value );  //should be 4
+        
+    string ch = "";
+        
     for ( int i = 0;i < length;i ++ )  //lpc中没有直接转换的方式，需要自己转换
     {
-        return value;
+        ch = value[i..i];
+        switch ( ch )
+        {
+        case "0" : ch_value = 0x00;break;
+        case "1" : ch_value = 0x01;break;
+        case "2" : ch_value = 0x02;break;
+        case "3" : ch_value = 0x03;break;
+        case "4" : ch_value = 0x04;break;
+        case "5" : ch_value = 0x05;break;
+        case "6" : ch_value = 0x06;break;
+        case "7" : ch_value = 0x07;break;
+        case "8" : ch_value = 0x08;break;
+        case "9" : ch_value = 0x09;break;
+        case "a" : 
+        case "A" : 
+            ch_value = 0x0A;
+            break;
+        case "b" : 
+        case "B" : 
+            ch_value = 0x0B;
+            break;
+        case "c" : 
+        case "C" : 
+            ch_value = 0x0C;
+            break;
+        case "d" : 
+        case "D" : 
+            ch_value = 0x0D;
+            break;
+        case "e" : 
+        case "E" : 
+            ch_value = 0x0E;
+            break;
+        case "f" : 
+        case "F" : 
+            ch_value = 0x0F;
+            break;
+        }
+        /* \ua000,ch_value = 0x0a;hex_value = 0xa000 */
+        hex_value += ch_value << 4*(length-1-i);
     }
+    
+    return sprintf("%c",hex_value);
 }
 
 /* 解析字符串，处理转义字符 */
@@ -154,6 +198,7 @@ private string parse_string( string value )
                 break;  
             case "u":  
                 ch = parse_hex_string(value[1+i..i+4]);
+                i += 4;
                 break;
             }
             
@@ -233,10 +278,10 @@ private string read_key_string()
     return key;
 }
 
-/* 读取以"开始、结束的字符串 */
+/* 读取以"开始、结束的字符串,读取结果包括前后的" */
 private string read_string()
 {
-    string value = "";
+    string value = "\"";
     
     json_ch_next();  //read first "
         
@@ -250,6 +295,7 @@ private string read_string()
     }
     
     json_ch_next();  //read last "
+    value += "\"";
     
     return value;
 }
@@ -319,7 +365,7 @@ private mixed *parse_array()
         if ( "," == json_ch ) //还有下一个元素，跳过,继续读取
         {
             json_ch_next();
-        }  
+        }
     }
     
     json_ch_next();  //read ]
